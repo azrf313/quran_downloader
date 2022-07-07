@@ -1,16 +1,19 @@
 """download quran audios from quran central website for different reciters"""
+# store the names with the link to first surah (al-fathiha)
+reciters = {
+        "abdul-basit-abd-us-samad" : "https://podcasts.qurancentral.com/abdul-basit/abdul-basit-64-surah-001.mp3",
+        "abdur-rahman-as-sudais" : "https://podcasts.qurancentral.com/abdul-rahman-al-sudais/192/abdul-rahman-al-sudais-001-qurancentral.com-192.mp3",
+        "ahmad-alnufais" : "https://podcasts.qurancentral.com/ahmad-alnufais/001.mp3",
+        }
+
+
+
 
 import os
 import json
 import pyinputplus
 import requests
 
-# store the names with the link to first surah (al-fathiha)
-namesToLink = {
-        "abdul-basit-abd-us-samad" : "https://podcasts.qurancentral.com/abdul-basit/abdul-basit-64-surah-001.mp3",
-        "abdur-rahman-as-sudais" : "https://podcasts.qurancentral.com/abdul-rahman-al-sudais/192/abdul-rahman-al-sudais-001-qurancentral.com-192.mp3",
-        "ahmad-alnufais" : "https://podcasts.qurancentral.com/ahmad-alnufais/001.mp3",
-        }
 
 file_surahs = open("surahs.json")
 surah_names = json.load(file_surahs)
@@ -45,7 +48,7 @@ def download_and_save(link, filename, surah_number):
 def main():
     total_downloads = 0
 
-    names = list(namesToLink.keys())
+    names = list(reciters.keys())
 
     print("\nPress ctrl-c to quit\n")
 
@@ -58,7 +61,7 @@ def main():
     print(f"Downloading surahs of {names[n-1]}")
 
     reciter = names[n-1]
-    link = namesToLink[reciter]
+    link = reciters[reciter]
     surahNumIndex = link.find('001')
 
     # incase we cannot find surah number in link
