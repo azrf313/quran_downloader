@@ -1,6 +1,7 @@
 """download quran audios from quran central website for different reciters"""
 
 import os
+import json
 import pyinputplus
 import requests
 
@@ -11,6 +12,9 @@ namesToLink = {
         "ahmad-alnufais" : "https://podcasts.qurancentral.com/ahmad-alnufais/001.mp3",
         }
 
+file_surahs = open("surahs.json")
+surah_names = json.load(file_surahs)
+
 def error(*msgs):
     print("\n" + "-"*60)
     for msg in msgs:
@@ -18,12 +22,12 @@ def error(*msgs):
     print("\n" + "-"*60)
     exit(1)
 
-def download_and_save(link, filename):
+def download_and_save(link, filename, surah_number):
     # dowloading
     try:
         download = requests.get(link)
         if (download.status_code != 200): # error downloading content
-            print(f"..............Error downloading surah {surah}")
+            print(f"Error... {surah_names[str(surah_number)]}")
             return False
 
     # incase of error in downloading
@@ -32,8 +36,10 @@ def download_and_save(link, filename):
         return False
 
     # writing to file
-    with open(filename, "wb") as f:
+    with open(surah_names[str(surah_number)], "wb") as f:
         f.write(download.content)
+        print("Done... " + surah_names[str(surah_number)])
+
     return True
 
 def main():
@@ -72,11 +78,8 @@ def main():
 
         old = link[surahNumIndex: surahNumIndex+3]
         link = link.replace(old, surah)
-
-        print(link)
-
         filename = reciter + "/" + link.split('/')[-1]
-        if (download_and_save(link, filename) == False):
+        if (download_and_save(link, filename, i) == False):
             continue
         else:
             total_downloads += 1
