@@ -11,24 +11,35 @@ namesToLink = {
         "ahmad-alnufais" : "https://podcasts.qurancentral.com/ahmad-alnufais/001.mp3",
         }
 
-def main():
-    names = list(namesToLink.keys())
-    # print(names)
+def error(*msgs):
+    print("\n" + "-"*60)
+    for msg in msgs:
+        print(f"Error: {msg}")
+    print("\n" + "-"*60)
+    exit(1)
 
+def main():
+    total_downloads = 0
+
+    names = list(namesToLink.keys())
+
+    print("\nPress ctrl-c to quit\n")
+
+    # print all the names
     for i in range(1, len(names)+1):
         print(i, names[i-1])
-        
+
+    # input 
     n = pyinputplus.inputInt("\nSelect the reciter number: ", min=1, max=len(names))
     print(f"Downloading surahs of {names[n-1]}")
-    print("Press ctrl-c to quit\n")
 
     reciter = names[n-1]
     link = namesToLink[reciter]
     surahNumIndex = link.find('001')
 
+    # incase we cannot find surah number in link
     if surahNumIndex == -1:
-        print("Unable to find surah number in link")
-        exit(1)
+        error("Unable to find surah number in link", "Please check your link")
 
     # create dir for suras
     os.makedirs(reciter, exist_ok=True)
@@ -49,16 +60,23 @@ def main():
         # dowloading
         try:
             download = requests.get(link)
-        except Exception as error:
-            print("Error downloading")
-            print(error)
-            exit(1)
+            if (download.status_code != 200): # error downloading content
+                print(f"..............Error downloading surah {surah}")
+                continue
+        # incase of error in downloading
+        except Exception as err:
+            error("Error downloading", err)
 
         # writing to file
         filename = reciter + "/" + link.split('/')[-1]
         with open(filename, "wb") as f:
             f.write(download.content)
+            total_downloads += 1
 
+    print(f"\nDownloaded total of {total_downloads} surahs\n")
     return 0
 
-main()
+try:
+    main()
+except KeyboardInterrupt: # hanling user pressing crtl-c
+    print("\nexited by user")
