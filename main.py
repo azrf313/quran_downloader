@@ -18,6 +18,24 @@ def error(*msgs):
     print("\n" + "-"*60)
     exit(1)
 
+def download_and_save(link, filename):
+    # dowloading
+    try:
+        download = requests.get(link)
+        if (download.status_code != 200): # error downloading content
+            print(f"..............Error downloading surah {surah}")
+            return False
+
+    # incase of error in downloading
+    except Exception as err:
+        error("Error downloading", err)
+        return False
+
+    # writing to file
+    with open(filename, "wb") as f:
+        f.write(download.content)
+    return True
+
 def main():
     total_downloads = 0
 
@@ -57,20 +75,10 @@ def main():
 
         print(link)
 
-        # dowloading
-        try:
-            download = requests.get(link)
-            if (download.status_code != 200): # error downloading content
-                print(f"..............Error downloading surah {surah}")
-                continue
-        # incase of error in downloading
-        except Exception as err:
-            error("Error downloading", err)
-
-        # writing to file
         filename = reciter + "/" + link.split('/')[-1]
-        with open(filename, "wb") as f:
-            f.write(download.content)
+        if (download_and_save(link, filename) == False):
+            continue
+        else:
             total_downloads += 1
 
     print(f"\nDownloaded total of {total_downloads} surahs\n")
