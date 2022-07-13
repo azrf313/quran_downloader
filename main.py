@@ -1,19 +1,16 @@
 """download quran audios from quran central website for different reciters"""
 # store the names with the link to first surah (al-fathiha)
 reciters = {
+        "abdullah-al-matrood": "https://podcasts.qurancentral.com/abdullah-al-matrood/abdullah-al-matrood-001-muslimcentral.com.mp3",
         "abdul-basit-abd-us-samad" : "https://podcasts.qurancentral.com/abdul-basit/abdul-basit-64-surah-001.mp3",
         "abdur-rahman-as-sudais" : "https://podcasts.qurancentral.com/abdul-rahman-al-sudais/192/abdul-rahman-al-sudais-001-qurancentral.com-192.mp3",
         "ahmad-alnufais" : "https://podcasts.qurancentral.com/ahmad-alnufais/001.mp3",
         }
 
-
-
-
 import os
 import json
 import pyinputplus
 import requests
-
 
 file_surahs = open("surahs.json")
 surah_names = json.load(file_surahs)
@@ -26,22 +23,6 @@ def error(*msgs):
     exit(1)
 
 def download_and_save(link, filename, surah_number):
-    # dowloading
-    try:
-        download = requests.get(link)
-        if (download.status_code != 200): # error downloading content
-            print(f"Error... {surah_names[str(surah_number)]}")
-            return False
-
-    # incase of error in downloading
-    except Exception as err:
-        error("Error downloading", err)
-        return False
-
-    # writing to file
-    with open(surah_names[str(surah_number)], "wb") as f:
-        f.write(download.content)
-        print("Done... " + surah_names[str(surah_number)])
 
     return True
 
@@ -81,10 +62,24 @@ def main():
 
         old = link[surahNumIndex: surahNumIndex+3]
         link = link.replace(old, surah)
-        filename = reciter + "/" + link.split('/')[-1]
-        if (download_and_save(link, filename, i) == False):
-            continue
-        else:
+
+        # dowloading
+        try:
+            download = requests.get(link)
+            if (download.status_code != 200): # error downloading content
+                print(f"Error... {surah_names[str(i)]}")
+                return False
+
+        # incase of error in downloading
+        except Exception as err:
+            error("Error downloading", err)
+            return False
+
+        # writing to file
+        filename = './' + reciter + '/' + surah_names[str(i)]
+        with open(filename, "wb") as f:
+            f.write(download.content)
+            print("Done... " + surah_names[str(i)])
             total_downloads += 1
 
     print(f"\nDownloaded total of {total_downloads} surahs\n")
